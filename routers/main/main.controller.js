@@ -88,7 +88,7 @@ let auction = async (req, res) => {
             })
             // Auction DB에 입찰 정보 입력
             await sequelize.query(`UPDATE items SET 
-            dueDate = items.dueDate + INTERVAL 5 SECOND 
+            dueDate = items.dueDate + INTERVAL 5 MINUTE 
             WHERE id=${getDue.dataValues.id}; 
             `) 
             // 그리고 해당 상품 id의 마감시간을 5분 연장시킨다
