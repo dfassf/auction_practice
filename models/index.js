@@ -4,6 +4,7 @@ const Sequelize = require('sequelize');
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const Auction = require('./auction');
+const Items = require('./items');
 
 const db = {};
 
@@ -15,7 +16,9 @@ if (config.use_env_variable) {
 }
 
 db.Auction = Auction;
+db.Items = Items;
 Auction.init(sequelize);
+Items.init(sequelize);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
