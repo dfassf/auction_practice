@@ -1,10 +1,9 @@
-const { default: axios } = require("axios")
-
 const priceInput = document.querySelector('.priceInput')
 const timeInput = document.querySelector('.timeInput')
 const btn = document.querySelector('.btn')
 
 async function init(){
+    console.log('init')
     btn.addEventListener('click',submitValue)
 }
 

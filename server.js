@@ -42,39 +42,7 @@ server.listen(PORT,()=>{
     console.log(`server listening on port ${PORT}`)
 })
 
-// 절취선 // 
-let m = 1
-let s = 0
-
 io.sockets.on('connection',socket=>{
     console.log('connected')
-    // setInterval(()=>{
-    //     socket.emit('trying',{data: s,m})
-    // },1000)
+
 })
-// countDown()
-function countDown(){
-    let timerFunc = setInterval(() => {
-        console.log(s,m)
-        if(s === 0 && m>=0){
-            if(s===0 && m=== 0){
-                // trigga = false
-                console.log('asd')
-                clearInterval(timerFunc)
-                // triggered()
-                return
-            }
-            s = 60
-            s--
-            m--
-            // timer.innerHTML = `${m}:${s}`
-        } else if(s !==0 && m>=0){ 
-            s-- 
-            if(s<10){
-                // timer.innerHTML = `${m}:0${s}`
-            } else{
-                // timer.innerHTML = `${m}:${s}`
-            }
-        }
-    }, 1000) 
-}
