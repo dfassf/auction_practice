@@ -14,8 +14,8 @@ let insert = (req, res) => {
 
 let insertData = async (req, res) => {
     // 입력한 경매 정보를 DB에 입력
-    const {price, time} = req.body
-    await Items.create({price, dueDate:time})
+    const {price, time, ifExtended} = req.body
+    await Items.create({price, dueDate:time, ifExtended})
     res.send({success: true})
 }
 
@@ -48,21 +48,21 @@ let auction = async (req, res) => {
     const {name, price, productId} = req.body
     console.log(req.body)
     // 테스트 버전에서 상품 ID는 1번으로만 진행되나, 실제로는 상품별로 ID값을 다르게 주어야 함
-    let result = await Auction.findAll({
+    let auctionResult = await Auction.findAll({
         where:{
             productId
         }
     })
-    let getDue = await Items.findOne({
+    let itemsResult = await Items.findOne({
         where:{
             id: productId
         }
     })
-    let dueTime = getDue.dataValues.dueDate.toTimeString()
+    let dueTime = itemsResult.dataValues.dueDate.toTimeString()
     let lastPrice
-    result.length == 0 
-    ? lastPrice = getDue.dataValues.price 
-    : lastPrice = result[result.length-1].dataValues.price
+    auctionResult.length == 0 
+    ? lastPrice = itemsResult.dataValues.price 
+    : lastPrice = auctionResult[auctionResult.length-1].dataValues.price
     // 최종가 입력이 안되어있는 경우 items에 입력된 기본 가격으로 설정
     // 입력된 가격이 있으면 가장 마지막에 등록된 가격을 가져온다(낮은 가격으로는 입찰이 안되기 때문)
 
@@ -80,6 +80,13 @@ let auction = async (req, res) => {
     if(timeCalc(dueTime) === true){
         // 진행중인 경매라면
         if(price>lastPrice){
+            // 최초 입찰 발생 시 해당 상품 id의 마감시간을 5분 연장시킨다
+            if(auctionResult.length == 0 && itemsResult.dataValues.ifExtended == 1){
+                await sequelize.query(`UPDATE items SET 
+                dueDate = items.dueDate + INTERVAL 5 SECOND 
+                WHERE id=${itemsResult.dataValues.id}; 
+                `) 
+            }
             // 입력된 가격이 현재 입찰가보다 높다면
             await Auction.create({
                 name,
@@ -87,12 +94,7 @@ let auction = async (req, res) => {
                 productId
             })
             // Auction DB에 입찰 정보 입력
-            await sequelize.query(`UPDATE items SET 
-            dueDate = items.dueDate + INTERVAL 5 MINUTE 
-            WHERE id=${getDue.dataValues.id}; 
-            `) 
-            // 그리고 해당 상품 id의 마감시간을 5분 연장시킨다
-            // -> getDue.dataValues.id 대신 productId를 써도 되긴 한데...
+            // -> itemsResult.dataValues.id 대신 productId를 써도 되긴 한데...
             res.send({success: true})
             // 프론트 쪽에 성공임을 알림
         } else{
